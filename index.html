@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>投胎模拟器 · 进阶版</title>
-  <meta name="description" content="按全球新生儿分布抽取国家/地区，含性别、富裕概率、人生难度、综合评分（国家40%/家庭45%/难度15%），支持十连抽与历史表格。纯前端。" />
+  <title>投胎模拟器 · 统计版</title>
+  <meta name="description" content="按全球新生儿分布抽取国家/地区，含性别、富裕概率、人生难度、综合评分（国家40%/家庭45%/难度15%），支持十连抽与累计统计。纯前端。" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main class="container">
     <header class="hero">
-      <h1>投胎模拟器 · 进阶版</h1>
-      <p class="subtitle">选择年份 → 抽取你的“投胎”结果。新版：评分=国家40% + 家庭45% + 难度15%，支持十连抽与历史统计。</p>
+      <h1>投胎模拟器 · 统计版</h1>
+      <p class="subtitle">评分=国家40% + 家庭45% + 难度15%。支持十连抽，实时统计你的历史概率。</p>
     </header>
 
     <section class="panel">
@@ -31,7 +31,7 @@
         <div class="btn-row">
           <button id="rollOnce" class="btn primary">投胎一次</button>
           <button id="rollTen" class="btn secondary">十连抽</button>
-          <button id="clearHistory" class="btn ghost">清空历史</button>
+          <button id="clearStats" class="btn ghost">清空统计</button>
         </div>
       </div>
 
@@ -55,14 +55,42 @@
         <div class="note" id="approxNote10"></div>
       </div>
 
-      <div id="historyCard" class="result-card hidden">
-        <h2>历史统计</h2>
-        <div class="table-wrap"><table id="historyTable">
-          <thead><tr>
-            <th>时间</th><th>年份</th><th>国家</th><th>性别</th><th>家庭</th><th>难度</th><th>评分</th><th>组合概率</th>
-          </tr></thead>
-          <tbody></tbody>
-        </table></div>
+      <div id="statsCard" class="result-card hidden">
+        <h2>累计统计</h2>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-title">总抽取次数</div>
+            <div class="stat-value" id="sTotal">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-title">平均评分</div>
+            <div class="stat-value" id="sAvg">0.0</div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table id="tblDiff">
+            <caption>人生难度占比</caption>
+            <thead><tr><th>档位</th><th>次数</th><th>占比</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="table-wrap">
+          <table id="tblWealth">
+            <caption>家庭富裕占比</caption>
+            <thead><tr><th>类别</th><th>次数</th><th>占比</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="table-wrap">
+          <table id="tblScore">
+            <caption>评分分布</caption>
+            <thead><tr><th>区间</th><th>次数</th><th>占比</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -72,7 +100,7 @@
         <a target="_blank" href="https://ourworldindata.org/grapher/crude-birth-rate.csv">Crude birth rate</a> ·
         <a target="_blank" href="https://ourworldindata.org/grapher/gdp-per-capita-worldbank.csv">GDP per capita (PPP)</a>
       </div>
-      <div>移动端优化：仅解析 8 个年份；内置 <code>data/prebaked.json</code> 本地数据优先，若无则联网抓取，并带多源重试。</div>
+      <div>中文国家名：内置完整 ISO3 → 中文映射。</div>
       <div class="small">© 2025 Rebirth Simulator · 代码 MIT · 数据 CC BY 4.0（UN WPP/World Bank，经 OWID 整理）</div>
     </footer>
   </main>
