@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>投胎模拟器 · Rebirth Simulator</title>
-  <meta name="description" content="根据联合国/OWID人口与出生数据，按年份加权随机抽取国家/地区的投胎模拟器。纯前端，可部署到 GitHub Pages。" />
+  <title>投胎模拟器 · 加强版</title>
+  <meta name="description" content="根据各年份全球出生分布抽取国家/地区，并给出性别、家庭富裕概率、难度等级与综合评分。纯前端，可部署到 GitHub Pages。" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main class="container">
     <header class="hero">
-      <h1>投胎模拟器</h1>
-      <p class="subtitle">选择年份 → 按全球出生分布概率抽取你“会投胎到哪里”。</p>
+      <h1>投胎模拟器 · 加强版</h1>
+      <p class="subtitle">选择年份 → 按全球新生儿分布抽取你会“投胎到哪里”。本版本加入：性别概率、富裕概率、人生难度与综合评分。</p>
     </header>
 
     <section class="panel">
@@ -25,42 +25,37 @@
           <option value="2000">2000</option>
           <option value="2010">2010</option>
           <option value="2020">2020</option>
-          <option value="2024">2024（近似使用2023年数据）</option>
+          <option value="2024">2024（近似用2023数据）</option>
         </select>
 
         <div class="btn-row">
           <button id="rollOnce" class="btn primary">投胎一次</button>
-          <button id="rollTen" class="btn secondary">投胎十次</button>
         </div>
       </div>
 
-      <div id="status" class="status">数据加载中……（首次加载需要下载数据文件，取决于网络状况）</div>
+      <div id="status" class="status">首次加载会下载数据文件（取决于网络）。</div>
 
       <div id="resultOnce" class="result-card hidden">
-        <h2>本次结果</h2>
+        <h2>结果</h2>
         <div class="result-line"><span class="label">国家 / 地区：</span><span id="rCountry"></span></div>
-        <div class="result-line"><span class="label">当年占全球新生儿的概率：</span><span id="rShare"></span></div>
-        <div class="result-line"><span class="label">当年预期寿命（岁）：</span><span id="rLife"></span></div>
-        <div class="result-line"><span class="label">当年人均GDP（国际$，不变价）：</span><span id="rGDP"></span></div>
+        <div class="result-line"><span class="label">性别：</span><span id="rGender"></span></div>
+        <div class="result-line"><span class="label">家庭：</span><span id="rWealth"></span></div>
+        <div class="result-line"><span class="label">人生难度：</span><span id="rTier"></span></div>
+        <div class="result-line"><span class="label">综合评分：</span><span id="rScore"></span></div>
+        <div class="result-line"><span class="label">本次组合概率：</span><span id="rComboProb"></span></div>
+        <div class="big-emoji" id="rEmoji"></div>
         <div class="note" id="approxNote"></div>
-      </div>
-
-      <div id="resultTen" class="result-card hidden">
-        <h2>十连抽结果</h2>
-        <div id="tenList"></div>
-        <div class="note" id="approxNote10"></div>
       </div>
     </section>
 
     <footer class="footer">
       <div>数据来源：
-        <a target="_blank" href="https://ourworldindata.org/grapher/population">OWID Population</a>，
-        <a target="_blank" href="https://ourworldindata.org/grapher/crude-birth-rate">OWID Crude birth rate</a>，
-        <a target="_blank" href="https://ourworldindata.org/grapher/life-expectancy">OWID Life expectancy</a>，
-        <a target="_blank" href="https://ourworldindata.org/grapher/gdp-per-capita-worldbank">OWID GDP per capita (WB)</a>。
+        <a target="_blank" href="https://ourworldindata.org/grapher/population.csv">OWID Population</a>，
+        <a target="_blank" href="https://ourworldindata.org/grapher/crude-birth-rate.csv">OWID Crude birth rate</a>，
+        <a target="_blank" href="https://ourworldindata.org/grapher/gdp-per-capita-worldbank.csv">OWID GDP per capita (WB, PPP)</a>。
       </div>
-      <div>说明：以“人口 × 粗出生率”估算当年各国新生儿数量，并按其在全球总新生儿中的占比作为抽取权重。2024 年暂以 2023 年数据近似。</div>
-      <div class="small">© 2025 Rebirth Simulator · 数据基于联合国 WPP（经 OWID 处理），许可 CC BY 4.0；本页面代码 MIT 许可。</div>
+      <div>建模说明：以“人口 × 粗出生率”估算各国新生儿，作为国家抽取权重；性别使用全球平均自然比例（♂≈51% / ♀≈49%）；富裕概率由当年本国人均GDP在全球的百分位映射得到（0.5%—12%）；难度等级用人均GDP阈值近似分档（可在 app.js 中改）。</div>
+      <div class="small">© 2025 Rebirth Simulator Plus · 数据 CC BY 4.0（UN WPP/World Bank，经 OWID 整理）；代码 MIT 许可。</div>
     </footer>
   </main>
 

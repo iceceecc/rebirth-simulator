@@ -1,4 +1,4 @@
-/* 卡通极简风：柔和色、圆角、轻微动效 */
+/* 风格：卡通极简 + 反馈表情 */
 :root{
   --bg: #f9fbff;
   --panel: #ffffff;
@@ -7,6 +7,8 @@
   --primary: #5b7fff;
   --secondary: #ff7fb3;
   --border: #e6ecff;
+  --good: #22c55e;
+  --bad: #ef4444;
 }
 
 *{box-sizing:border-box}
@@ -17,26 +19,11 @@ body{
   background: radial-gradient(1200px 600px at 20% -10%, #eef3ff, transparent 60%), var(--bg);
 }
 
-.container{
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 24px;
-}
+.container{ max-width: 900px; margin: 0 auto; padding: 24px; }
 
-.hero{
-  text-align:center;
-  padding: 12px 0 18px;
-}
-h1{
-  font-size: 40px;
-  margin: 8px 0;
-  letter-spacing: 1px;
-  text-shadow: 0 2px 0 rgba(91,127,255,.08);
-}
-.subtitle{
-  color: var(--muted);
-  margin:0;
-}
+.hero{ text-align:center; padding: 12px 0 18px; }
+h1{ font-size: 40px; margin: 8px 0; letter-spacing: 1px; text-shadow: 0 2px 0 rgba(91,127,255,.08); }
+.subtitle{ color: var(--muted); margin:0; }
 
 .panel{
   background: var(--panel);
@@ -48,74 +35,37 @@ h1{
   animation: floatIn .5s ease both;
 }
 
-@keyframes floatIn{
-  from{opacity:0; transform: translateY(8px)}
-  to{opacity:1; transform: translateY(0)}
-}
+@keyframes floatIn{ from{opacity:0; transform: translateY(8px)} to{opacity:1; transform: translateY(0)} }
 
-.controls{
-  display:flex;
-  flex-wrap: wrap;
-  gap: 12px 16px;
-  align-items: center;
-}
-
+.controls{ display:flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; }
 label{font-weight:600}
 .select{
-  padding: 10px 14px;
-  border-radius: 999px;
-  border:2px solid var(--border);
-  background:#fff;
-  font-size:16px;
+  padding: 10px 14px; border-radius: 999px; border:2px solid var(--border); background:#fff; font-size:16px;
 }
-
 .btn-row{ display:flex; gap:10px; }
 .btn{
-  padding: 10px 16px;
-  border-radius: 14px;
-  border: 0;
-  cursor: pointer;
-  font-size: 16px;
+  padding: 10px 16px; border-radius: 14px; border: 0; cursor: pointer; font-size: 16px;
   transition: transform .06s ease, box-shadow .2s ease;
   box-shadow: 0 6px 0 rgba(0,0,0,.08);
 }
 .btn:active{ transform: translateY(2px); box-shadow: 0 3px 0 rgba(0,0,0,.12)}
-
 .primary{ background: var(--primary); color:#fff }
-.secondary{ background: var(--secondary); color:#fff }
 
 .status{
-  margin-top: 14px;
-  padding: 10px 12px;
-  background: #f2f6ff;
-  border: 1px dashed var(--border);
-  border-radius: 12px;
-  color: var(--muted);
-  font-size: 14px;
+  margin-top: 14px; padding: 10px 12px; background: #f2f6ff; border: 1px dashed var(--border);
+  border-radius: 12px; color: var(--muted); font-size: 14px;
 }
 
-.result-card{
-  margin-top: 16px;
-  padding: 14px;
-  border: 2px solid var(--border);
-  border-radius: 16px;
-  background: #fbfdff;
-}
+.result-card{ margin-top: 16px; padding: 14px; border: 2px solid var(--border); border-radius: 16px; background: #fbfdff; }
 .hidden{ display:none }
 
-.result-line{
-  display:flex; gap:6px; align-items:center; margin: 8px 0;
-}
+.result-line{ display:flex; gap:6px; align-items:center; margin: 8px 0; }
 .result-line .label{ color: var(--muted) }
 
+.big-emoji{ font-size: 40px; margin-top: 6px }
 .note{ color: var(--muted); font-size: 13px; margin-top: 8px }
 .small{ color: var(--muted); font-size: 12px }
 
-.footer{
-  margin-top: 18px;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.6;
-}
-.footer a{ color: var(--primary); text-decoration: none }
-.footer a:hover{ text-decoration: underline }
+/* 分数颜色 */
+.score-good{ color: var(--good); font-weight: 700 }
+.score-bad{ color: var(--bad); font-weight: 700 }
