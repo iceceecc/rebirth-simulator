@@ -71,14 +71,13 @@ label{font-weight:600}
 .note{ color: var(--muted); font-size: 13px; margin-top: 6px }
 .small{ color: var(--muted); font-size: 12px }
 
-/* 表格 */
+/* 表格与统计 */
 .table-wrap{ overflow:auto }
 caption{ text-align:left; font-weight:700; margin:8px 0 4px; }
 table{ width:100%; border-collapse: collapse; font-size: 14px }
 th, td{ border-bottom: 1px solid var(--border); padding: 8px 6px; text-align:left; white-space:nowrap }
 th{ color: var(--muted); font-weight:600; }
 
-/* 统计卡片 */
 .stats-grid{ display:grid; grid-template-columns: repeat(2, minmax(120px,1fr)); gap:12px; margin:8px 0 6px; }
 .stat-box{ border:1px solid var(--border); border-radius:12px; padding:10px 12px; background:#fff }
 .stat-title{ color:var(--muted); font-size:13px }

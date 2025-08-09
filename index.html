@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>投胎模拟器 · 直觉加权·修复版</title>
-  <meta name="description" content="按全球新生儿分布抽取国家/地区，含性别、富裕概率、人生难度、综合评分（国家40%/家庭45%/难度15%），带直觉加成与扣分；支持十连抽与累计统计。纯前端。" />
+  <title>投胎模拟器 · v6 直觉加权版</title>
+  <meta name="description" content="更直观的100分制：国家机会、家庭起点、公共服务、安全稳定、社会环境。支持十连抽与累计统计。纯前端，可部署到 GitHub Pages。" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main class="container">
     <header class="hero">
-      <h1>投胎模拟器 · 直觉加权·修复版</h1>
-      <p class="subtitle">评分=国家40% + 家庭45% + 难度15%。已加入老牌发达/新发达加成与下限，战乱/不利地区扣分；兼容手机。</p>
+      <h1>投胎模拟器 · v6 直觉加权版</h1>
+      <p class="subtitle">评分= 国家机会35% + 家庭起点35% + 公共服务10% + 安全稳定15% + 社会环境5%。支持十连抽与累计统计。</p>
     </header>
 
     <section class="panel">
@@ -35,7 +35,7 @@
         </div>
       </div>
 
-      <div id="status" class="status">首次加载会下载数据（仅解析 8 个年份，适配手机）。</div>
+      <div id="status" class="status">首次加载会取数据（仅解析 8 个年份，适配手机）。</div>
 
       <div id="resultOnce" class="result-card hidden">
         <h2>本次结果</h2>
@@ -100,11 +100,12 @@
         <a target="_blank" href="https://ourworldindata.org/grapher/crude-birth-rate.csv">Crude birth rate</a> ·
         <a target="_blank" href="https://ourworldindata.org/grapher/gdp-per-capita-worldbank.csv">GDP per capita (PPP)</a>
       </div>
-      <div>中文国家名：内置 ISO3 → 中文映射；未命中则回退英文实体名。</div>
+      <div>中文国家名：内置完整 ISO3 → 中文映射；支持本地预处理数据 data/prebaked.json。</div>
       <div class="small">© 2025 Rebirth Simulator · 代码 MIT · 数据 CC BY 4.0（UN WPP/World Bank，经 OWID 整理）</div>
     </footer>
   </main>
 
+  <script src="config.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
