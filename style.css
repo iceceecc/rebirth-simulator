@@ -1,4 +1,4 @@
-/* 风格：卡通极简 + 反馈表情 */
+/* 卡通风 + 表格 + 手机适配 */
 :root{
   --bg: #f9fbff;
   --panel: #ffffff;
@@ -6,12 +6,14 @@
   --muted: #6b7a90;
   --primary: #5b7fff;
   --secondary: #ff7fb3;
+  --ghost: #94a3b8;
   --border: #e6ecff;
-  --good: #22c55e;
+  --good: #16a34a;
   --bad: #ef4444;
 }
 
 *{box-sizing:border-box}
+html,body{height:100%}
 body{
   margin:0;
   font-family: ui-rounded, system-ui, -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
@@ -19,17 +21,17 @@ body{
   background: radial-gradient(1200px 600px at 20% -10%, #eef3ff, transparent 60%), var(--bg);
 }
 
-.container{ max-width: 900px; margin: 0 auto; padding: 24px; }
+.container{ max-width: 1000px; margin: 0 auto; padding: 16px; }
 
-.hero{ text-align:center; padding: 12px 0 18px; }
-h1{ font-size: 40px; margin: 8px 0; letter-spacing: 1px; text-shadow: 0 2px 0 rgba(91,127,255,.08); }
-.subtitle{ color: var(--muted); margin:0; }
+.hero{ text-align:center; padding: 8px 0 12px; }
+h1{ font-size: clamp(28px, 4vw, 40px); margin: 6px 0; letter-spacing: 1px; text-shadow: 0 2px 0 rgba(91,127,255,.08); }
+.subtitle{ color: var(--muted); margin:0; font-size: clamp(14px, 2.3vw, 16px) }
 
 .panel{
   background: var(--panel);
   border: 2px solid var(--border);
-  border-radius: 20px;
-  padding: 18px;
+  border-radius: 16px;
+  padding: clamp(12px,2.4vw,18px);
   box-shadow: 0 8px 24px rgba(31,42,68,.06);
   transform: translateY(0);
   animation: floatIn .5s ease both;
@@ -37,12 +39,13 @@ h1{ font-size: 40px; margin: 8px 0; letter-spacing: 1px; text-shadow: 0 2px 0 rg
 
 @keyframes floatIn{ from{opacity:0; transform: translateY(8px)} to{opacity:1; transform: translateY(0)} }
 
-.controls{ display:flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; }
+.controls{ display:flex; flex-wrap: wrap; gap: 10px 12px; align-items: center; }
 label{font-weight:600}
 .select{
   padding: 10px 14px; border-radius: 999px; border:2px solid var(--border); background:#fff; font-size:16px;
 }
-.btn-row{ display:flex; gap:10px; }
+
+.btn-row{ display:flex; gap:8px; flex-wrap:wrap }
 .btn{
   padding: 10px 16px; border-radius: 14px; border: 0; cursor: pointer; font-size: 16px;
   transition: transform .06s ease, box-shadow .2s ease;
@@ -50,22 +53,34 @@ label{font-weight:600}
 }
 .btn:active{ transform: translateY(2px); box-shadow: 0 3px 0 rgba(0,0,0,.12)}
 .primary{ background: var(--primary); color:#fff }
+.secondary{ background: var(--secondary); color:#fff }
+.ghost{ background: var(--ghost); color:#fff }
 
 .status{
-  margin-top: 14px; padding: 10px 12px; background: #f2f6ff; border: 1px dashed var(--border);
+  margin-top: 10px; padding: 10px 12px; background: #f2f6ff; border: 1px dashed var(--border);
   border-radius: 12px; color: var(--muted); font-size: 14px;
 }
 
-.result-card{ margin-top: 16px; padding: 14px; border: 2px solid var(--border); border-radius: 16px; background: #fbfdff; }
+.result-card{ margin-top: 12px; padding: 12px; border: 2px solid var(--border); border-radius: 14px; background: #fbfdff; }
 .hidden{ display:none }
 
-.result-line{ display:flex; gap:6px; align-items:center; margin: 8px 0; }
+.result-line{ display:flex; gap:6px; align-items:center; margin: 6px 0; }
 .result-line .label{ color: var(--muted) }
 
-.big-emoji{ font-size: 40px; margin-top: 6px }
-.note{ color: var(--muted); font-size: 13px; margin-top: 8px }
+.big-emoji{ font-size: 36px; margin-top: 6px }
+.note{ color: var(--muted); font-size: 13px; margin-top: 6px }
 .small{ color: var(--muted); font-size: 12px }
+
+/* 表格 */
+.table-wrap{ overflow:auto }
+table{ width:100%; border-collapse: collapse; font-size: 14px }
+th, td{ border-bottom: 1px solid var(--border); padding: 8px 6px; text-align:left; white-space:nowrap }
+th{ color: var(--muted); font-weight:600; }
 
 /* 分数颜色 */
 .score-good{ color: var(--good); font-weight: 700 }
 .score-bad{ color: var(--bad); font-weight: 700 }
+
+@media (max-width: 480px){
+  .result-line{ flex-direction: column; align-items: flex-start; }
+}

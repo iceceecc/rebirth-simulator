@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>投胎模拟器 · 加强版</title>
-  <meta name="description" content="根据各年份全球出生分布抽取国家/地区，并给出性别、家庭富裕概率、难度等级与综合评分。纯前端，可部署到 GitHub Pages。" />
+  <title>投胎模拟器 · 进阶版</title>
+  <meta name="description" content="按全球新生儿分布抽取国家/地区，含性别、富裕概率、人生难度、综合评分（国家40%/家庭45%/难度15%），支持十连抽与历史表格。纯前端。" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main class="container">
     <header class="hero">
-      <h1>投胎模拟器 · 加强版</h1>
-      <p class="subtitle">选择年份 → 按全球新生儿分布抽取你会“投胎到哪里”。本版本加入：性别概率、富裕概率、人生难度与综合评分。</p>
+      <h1>投胎模拟器 · 进阶版</h1>
+      <p class="subtitle">选择年份 → 抽取你的“投胎”结果。新版：评分=国家40% + 家庭45% + 难度15%，支持十连抽与历史统计。</p>
     </header>
 
     <section class="panel">
@@ -30,13 +30,15 @@
 
         <div class="btn-row">
           <button id="rollOnce" class="btn primary">投胎一次</button>
+          <button id="rollTen" class="btn secondary">十连抽</button>
+          <button id="clearHistory" class="btn ghost">清空历史</button>
         </div>
       </div>
 
-      <div id="status" class="status">首次加载会下载数据文件（取决于网络）。</div>
+      <div id="status" class="status">首次加载会下载数据（仅解析 8 个年份，适配手机）。</div>
 
       <div id="resultOnce" class="result-card hidden">
-        <h2>结果</h2>
+        <h2>本次结果</h2>
         <div class="result-line"><span class="label">国家 / 地区：</span><span id="rCountry"></span></div>
         <div class="result-line"><span class="label">性别：</span><span id="rGender"></span></div>
         <div class="result-line"><span class="label">家庭：</span><span id="rWealth"></span></div>
@@ -46,16 +48,32 @@
         <div class="big-emoji" id="rEmoji"></div>
         <div class="note" id="approxNote"></div>
       </div>
+
+      <div id="resultTen" class="result-card hidden">
+        <h2>十连抽结果</h2>
+        <div id="tenList"></div>
+        <div class="note" id="approxNote10"></div>
+      </div>
+
+      <div id="historyCard" class="result-card hidden">
+        <h2>历史统计</h2>
+        <div class="table-wrap"><table id="historyTable">
+          <thead><tr>
+            <th>时间</th><th>年份</th><th>国家</th><th>性别</th><th>家庭</th><th>难度</th><th>评分</th><th>组合概率</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </div>
     </section>
 
     <footer class="footer">
-      <div>数据来源：
-        <a target="_blank" href="https://ourworldindata.org/grapher/population.csv">OWID Population</a>，
-        <a target="_blank" href="https://ourworldindata.org/grapher/crude-birth-rate.csv">OWID Crude birth rate</a>，
-        <a target="_blank" href="https://ourworldindata.org/grapher/gdp-per-capita-worldbank.csv">OWID GDP per capita (WB, PPP)</a>。
+      <div>数据：
+        <a target="_blank" href="https://ourworldindata.org/grapher/population.csv">Population</a> ·
+        <a target="_blank" href="https://ourworldindata.org/grapher/crude-birth-rate.csv">Crude birth rate</a> ·
+        <a target="_blank" href="https://ourworldindata.org/grapher/gdp-per-capita-worldbank.csv">GDP per capita (PPP)</a>
       </div>
-      <div>建模说明：以“人口 × 粗出生率”估算各国新生儿，作为国家抽取权重；性别使用全球平均自然比例（♂≈51% / ♀≈49%）；富裕概率由当年本国人均GDP在全球的百分位映射得到（0.5%—12%）；难度等级用人均GDP阈值近似分档（可在 app.js 中改）。</div>
-      <div class="small">© 2025 Rebirth Simulator Plus · 数据 CC BY 4.0（UN WPP/World Bank，经 OWID 整理）；代码 MIT 许可。</div>
+      <div>移动端优化：仅解析 8 个年份；内置 <code>data/prebaked.json</code> 本地数据优先，若无则联网抓取，并带多源重试。</div>
+      <div class="small">© 2025 Rebirth Simulator · 代码 MIT · 数据 CC BY 4.0（UN WPP/World Bank，经 OWID 整理）</div>
     </footer>
   </main>
 
