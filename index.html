@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>投胎模拟器 · 直觉加权版</title>
-  <meta name="description" content="全球新生儿分布抽取国家/地区，含性别、家庭富裕、人生难度、综合评分（国家40%/家庭45%/难度15%），支持十连抽与累计统计；加入年代与地区直觉加成/扣分及下限。纯前端。" />
+  <title>投胎模拟器 · 直觉加权·修复版</title>
+  <meta name="description" content="按全球新生儿分布抽取国家/地区，含性别、富裕概率、人生难度、综合评分（国家40%/家庭45%/难度15%），带直觉加成与扣分；支持十连抽与累计统计。纯前端。" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main class="container">
     <header class="hero">
-      <h1>投胎模拟器 · 直觉加权版</h1>
-      <p class="subtitle">评分=国家40% + 家庭45% + 难度15%。按你的要求加入“老牌发达/新发达”加成、战乱与不利地区扣分，并设置下限。支持十连抽与累计统计。</p>
+      <h1>投胎模拟器 · 直觉加权·修复版</h1>
+      <p class="subtitle">评分=国家40% + 家庭45% + 难度15%。已加入老牌发达/新发达加成与下限，战乱/不利地区扣分；兼容手机。</p>
     </header>
 
     <section class="panel">
@@ -100,7 +100,7 @@
         <a target="_blank" href="https://ourworldindata.org/grapher/crude-birth-rate.csv">Crude birth rate</a> ·
         <a target="_blank" href="https://ourworldindata.org/grapher/gdp-per-capita-worldbank.csv">GDP per capita (PPP)</a>
       </div>
-      <div>直觉加权：老牌发达/新发达加成与下限；战乱及不利地区扣分；年代越近加成/扣分逐步收敛。</div>
+      <div>中文国家名：内置 ISO3 → 中文映射；未命中则回退英文实体名。</div>
       <div class="small">© 2025 Rebirth Simulator · 代码 MIT · 数据 CC BY 4.0（UN WPP/World Bank，经 OWID 整理）</div>
     </footer>
   </main>
