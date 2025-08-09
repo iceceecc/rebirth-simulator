@@ -1,4 +1,4 @@
-// 统计版逻辑
+// 直觉加权版逻辑
 const YEARS = [1960, 1970, 1980, 1990, 2000, 2010, 2020, 2024];
 const DATA_YEAR_MAP = {1960:1960, 1970:1970, 1980:1980, 1990:1990, 2000:2000, 2010:2010, 2020:2020, 2024:2023};
 const ENDPOINTS_PRIMARY = {
@@ -12,13 +12,20 @@ const ENDPOINTS_FALLBACK = {
   gdpPc: "https://ourworldindata.org/grapher/gdp-per-capita-worldbank.csv?download-format=tab"
 };
 
-// 性别（自然比例）
 const GENDER = { male: 0.512, female: 0.488 };
 
-// 1960-1980 的经典发达国家（强制一等奖）
-const CLASSIC_DEV = new Set(["USA","CAN","GBR","FRA","DEU","ITA","ESP","NLD","BEL","LUX","SWE","NOR","FIN","DNK","CHE","AUT","IRL","AUS","NZL","JPN"]);
+// 老牌发达（更高加成）：北欧 + 美/加/英/西欧核心 + 澳新
+const OLD_DEV = new Set(["USA","CAN","GBR","FRA","DEU","ITA","ESP","NLD","BEL","LUX","SWE","NOR","FIN","DNK","CHE","AUT","IRL","ISL","AUS","NZL"]);
+// 新发达（适度加成）：日本/韩国/新加坡/港澳台/以色列等
+const NEW_DEV = new Set(["JPN","KOR","SGP","HKG","MAC","TWN","ISR"]);
 
-// 中文名映射（完整）
+// 战乱/高风险扣分（强）
+const HARD_PENALTY = new Set(["SYR","YEM","AFG","SSD","SDN","SOM","COD"]);
+// 轻度扣分区域：部分东南亚与南美（排除少数较稳定/较富裕的）
+const SOFT_PENALTY_SEA = new Set(["KHM","LAO","MMR","IDN","PHL","TLS"]);
+const SOFT_PENALTY_SA  = new Set(["BOL","PRY","PER","ECU","VEN","COL","BRA","ARG"]);
+
+// 中文名映射
 const ZH = {
   "AFG": "阿富汗",
   "ALB": "阿尔巴尼亚",
@@ -215,47 +222,9 @@ const ZH = {
   "MAC": "中国澳门",
   "TWN": "中国台湾",
   "PSE": "巴勒斯坦",
-  "XKX": "科索沃",
-  "ABW": "阿鲁巴",
-  "AIA": "安圭拉",
-  "ASM": "美属萨摩亚",
-  "BES": "荷兰加勒比区",
-  "BMU": "百慕大",
-  "VGB": "英属维尔京群岛",
-  "IOT": "英属印度洋领地",
-  "CYM": "开曼群岛",
-  "COK": "库克群岛",
-  "CUW": "库拉索",
-  "FRO": "法罗群岛",
-  "GIB": "直布罗陀",
-  "GRL": "格陵兰",
-  "GUM": "关岛",
-  "GGY": "根西岛",
-  "IMN": "马恩岛",
-  "JEY": "泽西岛",
-  "MAF": "法属圣马丁",
-  "MSR": "蒙特塞拉特",
-  "NCL": "新喀里多尼亚",
-  "MNP": "北马里亚纳群岛",
-  "NFK": "诺福克岛",
-  "PYF": "法属波利尼西亚",
-  "PCN": "皮特凯恩群岛",
-  "PRI": "波多黎各",
-  "REU": "留尼汪",
-  "BLM": "圣巴泰勒米",
-  "SHN": "圣赫勒拿",
-  "SPM": "圣皮埃尔和密克隆",
-  "SXM": "荷属圣马丁",
-  "TCA": "特克斯和凯科斯群岛",
-  "WLF": "瓦利斯和富图纳",
-  "GUF": "法属圭亚那",
-  "GLP": "瓜德罗普",
-  "MTQ": "马提尼克",
-  "MYT": "马约特",
-  "SJM": "斯瓦尔巴和扬马延"
+  "XKX": "科索沃"
 };
 
-// 年代阈值与差距收敛
 function thresholdsForYear(year){
   if(year <= 1980) return {A: 20000, B: 8000};
   if(year <= 2000) return {A: 30000, B: 12000};
@@ -268,10 +237,16 @@ function gapScale(year){
   if(year <= 2010) return 0.75;
   return 0.65;
 }
+function eraBand(year){
+  if(year <= 1980) return "early";
+  if(year <= 2000) return "mid";
+  if(year <= 2015) return "late";
+  return "now";
+}
 
-// 分档与分数
 function tierOf(code, year, gdpVal){
-  if(year <= 1980 && CLASSIC_DEV.has(code)) return "A";
+  // 1960-1980 的经典发达国家强制一等奖
+  if(year <= 1980 && (OLD_DEV.has(code) || code==="JPN")) return "A";
   const th = thresholdsForYear(year);
   if(!Number.isFinite(gdpVal)) return "C";
   if(gdpVal >= th.A) return "A";
@@ -296,6 +271,44 @@ function regionScoreFromPercentile(p, year){
 function wealthProbFromPercentile(p){ const minP = 0.005, maxP = 0.14; return minP + (maxP-minP)*Math.max(0, Math.min(1,p||0)); }
 function wealthScore(isWealthy, p){ return isWealthy ? 100 : (30 + 40 * Math.max(0, Math.min(1, p||0))); }
 function finalScore(region, wealth, difficulty){ return region*0.40 + wealth*0.45 + difficulty*0.15; }
+
+// 直觉加权：加成/扣分 + 下限
+function applyIntuitionAdjustments(code, year, wealthy, regionSc, wealthSc, baseFinal){
+  const era = eraBand(year);
+  let add = 0;
+
+  function floors(obj){ // clamp floors
+    if(obj.regionFloor != null) regionSc = Math.max(regionSc, obj.regionFloor);
+    if(obj.wealthFloor != null && !wealthy) wealthSc = Math.max(wealthSc, obj.wealthFloor);
+    add += (obj.addBoost || 0);
+  }
+
+  if(OLD_DEV.has(code)){
+    if(era==="early") floors({regionFloor:85, wealthFloor:65, addBoost:5});
+    else if(era==="mid") floors({regionFloor:82, wealthFloor:62, addBoost:4});
+    else if(era==="late") floors({regionFloor:80, wealthFloor:60, addBoost:3});
+    else floors({regionFloor:78, wealthFloor:58, addBoost:2});
+  }else if(NEW_DEV.has(code)){
+    if(era==="early") floors({regionFloor:78, wealthFloor:58, addBoost:2});
+    else if(era==="mid") floors({regionFloor:80, wealthFloor:60, addBoost:2});
+    else if(era==="late") floors({regionFloor:82, wealthFloor:60, addBoost:1});
+    else floors({regionFloor:80, wealthFloor:60, addBoost:1});
+  }
+
+  // 扣分（战乱/不利），年代越近影响越小（直觉上全球化改善）
+  let penalty = 0;
+  if(HARD_PENALTY.has(code)) penalty = 6;
+  else if(SOFT_PENALTY_SEA.has(code) || SOFT_PENALTY_SA.has(code)) penalty = 2;
+
+  const shrink = (era==="early"?1.0 : era==="mid"?0.85 : era==="late"?0.7 : 0.6);
+  penalty = penalty * shrink;
+
+  // 重新计算综合分（用更新后的 component）
+  let final = finalScore(regionSc, wealthSc, 0); // difficulty 已包含在外面算并加入，此处只重计算 region+wealth
+  final += add; // 加成
+  final -= penalty; // 扣分
+  return { regionSc, wealthSc, finalAdj: final };
+}
 
 function fmtPct(x){ return (x*100).toFixed(2) + "%"; }
 function cn(entity, code){ return ZH[code] || entity; }
@@ -395,39 +408,12 @@ async function loadData(){
   catch(e1){ console.warn("主源失败，切备用", e1); return await fetchAndBuild(ENDPOINTS_FALLBACK); }
 }
 
-// 统计累加器
-const agg = {
-  total: 0,
-  sumScore: 0,
-  diff: {A:0, B:0, C:0},
-  wealth: {rich:0, non:0},
-  score: {low:0, mid:0, high:0, top:0} // <=59 / 60-79 / 80-89 / >=90
-};
+// 累计统计
+const agg = { total:0, sumScore:0, diff:{A:0,B:0,C:0}, wealth:{rich:0,non:0}, score:{low:0,mid:0,high:0,top:0} };
+function bucketScore(s){ if(s>=90) return "top"; if(s>=80) return "high"; if(s>=60) return "mid"; return "low"; }
+function updateAgg(r){ agg.total++; agg.sumScore+=r.score; agg.diff[r.tier]++; (r.wealthy?agg.wealth.rich:agg.wealth.non)++; agg.score[bucketScore(r.score)]++; }
+function resetAgg(){ agg.total=0; agg.sumScore=0; agg.diff={A:0,B:0,C:0}; agg.wealth={rich:0,non:0}; agg.score={low:0,mid:0,high:0,top:0}; renderStats(); }
 
-function bucketScore(s){
-  if(s>=90) return "top";
-  if(s>=80) return "high";
-  if(s>=60) return "mid";
-  return "low";
-}
-
-function updateAgg(r){
-  agg.total += 1;
-  agg.sumScore += r.score;
-  agg.diff[r.tier] += 1;
-  if(r.wealthy) agg.wealth.rich += 1; else agg.wealth.non += 1;
-  agg.score[bucketScore(r.score)] += 1;
-}
-
-function resetAgg(){
-  agg.total = 0; agg.sumScore = 0;
-  agg.diff = {A:0,B:0,C:0};
-  agg.wealth = {rich:0, non:0};
-  agg.score = {low:0, mid:0, high:0, top:0};
-  renderStats();
-}
-
-// 抽样
 function weightedPick(rows){ const r=Math.random(); let acc=0; for(const it of rows){ acc+=it.share; if(r<=acc) return it; } return rows[rows.length-1]; }
 
 function simulateOnce(year){
@@ -443,11 +429,20 @@ function simulateOnce(year){
   const wealthy=Math.random()<wealthProb;
 
   const t=tierOf(pick.code, year, gdpVal); const tSc=tierScore(t, year);
-  const rSc=regionScoreFromPercentile(pct, year);
-  const wSc=wealthScore(wealthy, pct);
-  const score=Math.round(finalScore(rSc, wSc, tSc));
+  let rSc=regionScoreFromPercentile(pct, year);
+  let wSc=wealthScore(wealthy, pct);
 
+  // 先按原权重合成（不含加成/扣分）
+  let base = Math.round(finalScore(rSc, wSc, tSc));
+
+  // 应用直觉加权（只调整 region/wealth 组件 + 额外偏置）
+  const adj = applyIntuitionAdjustments(pick.code, year, wealthy, rSc, wSc, base);
+  rSc = adj.regionSc; wSc = adj.wealthSc;
+  let score = Math.round(adj.finalAdj + tSc*0.15); // 加回难度权重
+
+  // 组合概率
   const comboProb=pick.share*genderProb*(wealthy?wealthProb:(1-wealthProb));
+
   let emoji="🙂"; if(score>=85) emoji="🎉🌸✨"; else if(score<=55) emoji="💔🪨😣"; else emoji="👍";
 
   return { code:pick.code, country:entityCN, share:pick.share, gender, genderProb, wealthy, wealthProb, tier:t, score, comboProb, emoji };
@@ -463,11 +458,10 @@ function renderOnce(r, year){
   scoreEl.className=(r.score>=80?"score-good":(r.score<=55?"score-bad":""));
   document.getElementById("rComboProb").textContent=`${fmtPct(r.comboProb)}（= 国家份额 × 性别 × 家庭条件）`;
   document.getElementById("rEmoji").textContent=r.emoji;
-  document.getElementById("approxNote").textContent=(year===2024)?"注：2024 年用 2023 年数据近似；已对 1960–1980 的经典发达国家强制提升难度等级。":"已对 1960–1980 的经典发达国家强制提升难度等级。";
+  document.getElementById("approxNote").textContent=(year===2024)?"注：2024 年用 2023 年数据近似；已加入年代与地区直觉加权、加成/扣分及下限。":"已加入年代与地区直觉加权、加成/扣分及下限。";
   document.getElementById("resultOnce").classList.remove("hidden");
 }
 
-// 十连抽渲染（仅显示本轮汇总）
 function renderTen(list, year){
   const counts=new Map();
   for(const r of list){ const k=`${r.country}（${r.code}）`; counts.set(k,(counts.get(k)||0)+1); }
@@ -478,29 +472,25 @@ function renderTen(list, year){
   document.getElementById("resultTen").classList.remove("hidden");
 }
 
-// 统计渲染
-function pct(n, d){ return d? ((n*100/d).toFixed(1)+"%") : "0.0%"; }
+function pct(n,d){ return d? ((n*100/d).toFixed(1)+"%") : "0.0%"; }
 function renderStats(){
   const card = document.getElementById("statsCard");
   const total = agg.total;
   document.getElementById("sTotal").textContent = total;
   document.getElementById("sAvg").textContent = total? (agg.sumScore/total).toFixed(1) : "0.0";
 
-  // 难度
   const tbodyD = document.querySelector("#tblDiff tbody");
   tbodyD.innerHTML = "";
   [["一等奖A", agg.diff.A], ["二等奖B", agg.diff.B], ["三等奖C", agg.diff.C]].forEach(([k,v])=>{
     const tr=document.createElement("tr"); tr.innerHTML=`<td>${k}</td><td>${v}</td><td>${pct(v,total)}</td>`; tbodyD.appendChild(tr);
   });
 
-  // 家庭
   const tbodyW = document.querySelector("#tblWealth tbody");
   tbodyW.innerHTML = "";
   [["富裕", agg.wealth.rich], ["一般", agg.wealth.non]].forEach(([k,v])=>{
     const tr=document.createElement("tr"); tr.innerHTML=`<td>${k}</td><td>${v}</td><td>${pct(v,total)}</td>`; tbodyW.appendChild(tr);
   });
 
-  // 评分分布
   const tbodyS = document.querySelector("#tblScore tbody");
   tbodyS.innerHTML = "";
   [["≤59（低分）", agg.score.low], ["60–79（中等）", agg.score.mid], ["80–89（较高）", agg.score.high], ["≥90（顶尖）", agg.score.top]].forEach(([k,v])=>{
@@ -524,8 +514,6 @@ function onRollTen(){
   for(const r of rs){ updateAgg(r); }
   renderStats();
 }
-
-function weightedPick(rows){ const r=Math.random(); let acc=0; for(const it of rows){ acc+=it.share; if(r<=acc) return it; } return rows[rows.length-1]; }
 
 async function init(){
   const status=document.getElementById("status");
